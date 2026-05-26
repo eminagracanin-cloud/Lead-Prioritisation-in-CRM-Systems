@@ -3,6 +3,12 @@ import joblib
 import pandas as pd
 import streamlit as st
 
+import google.generativeai as genai
+
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
+gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+
 from monitor import log_prediction, check_drift
 
 # -------------------------------
