@@ -254,19 +254,6 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
----
-
-## Data and Model Paths
-
-The Streamlit app expects the dataset and model to be stored in the following locations:
-
-```text
-data/Lead Scoring.csv
-artifacts/model/xgboost_model.pkl
-artifacts/metrics/train_stats.json
-```
-
-If these files are moved, the paths in `streamlit_app.py` and `monitor.py` must be updated accordingly.
 
 ---
 
@@ -289,19 +276,6 @@ logs.json
 
 This file is generated automatically when predictions are made in the Streamlit app.
 
----
-
-## Technologies Used
-
-- Python
-- Pandas
-- Scikit-learn
-- XGBoost
-- Joblib
-- Streamlit
-- JSON-based logging
-- Google Gemini API for LLM-assisted recommendation demonstration in the notebook
-- GitHub Codespaces / Dev Containers, optional
 
 ---
 
