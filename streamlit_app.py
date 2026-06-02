@@ -1,4 +1,5 @@
-import os
+from pathlib import Path
+
 import joblib
 import pandas as pd
 import streamlit as st
@@ -9,14 +10,30 @@ from monitor import log_prediction, check_drift
 # CONFIG
 # -------------------------------
 MODEL_VERSION = "v1.0"
-MODEL_PATH = "xgboost_model.pkl"
-DATA_PATH = "Lead Scoring.csv"
+
+BASE_DIR = Path(__file__).resolve().parent
+
+DATA_PATH = BASE_DIR / "data" / "Lead Scoring.csv"
+MODEL_PATH = BASE_DIR / "artifacts" / "model" / "xgboost_model.pkl"
+LOGS_PATH = BASE_DIR / "logs.json"
 
 st.set_page_config(
     page_title="Lead Prioritisation CRM Tool",
     page_icon="📊",
     layout="wide"
 )
+
+# -------------------------------
+# PATH CHECK
+# -------------------------------
+def check_required_file(path, label):
+    if not path.exists():
+        st.error(f"{label} not found at: {path}")
+        st.stop()
+
+
+check_required_file(DATA_PATH, "Dataset")
+check_required_file(MODEL_PATH, "Model file")
 
 # -------------------------------
 # CUSTOM CSS
@@ -126,23 +143,40 @@ model = load_model()
 # -------------------------------
 # LOAD DATA
 # -------------------------------
-df = pd.read_csv(DATA_PATH)
+@st.cache_data
+def load_data():
+    data = pd.read_csv(DATA_PATH)
 
-required_columns = [
-    "Prospect ID",
-    "Lead Source",
-    "Do Not Email",
-    "Do Not Call",
-    "TotalVisits",
-    "Total Time Spent on Website",
-    "Page Views Per Visit",
-    "Converted"
-]
+    required_columns = [
+        "Prospect ID",
+        "Lead Source",
+        "Do Not Email",
+        "Do Not Call",
+        "TotalVisits",
+        "Total Time Spent on Website",
+        "Page Views Per Visit",
+        "Converted"
+    ]
 
-df = df[required_columns].dropna()
+    missing_columns = [col for col in required_columns if col not in data.columns]
+    if missing_columns:
+        st.error(f"Missing required columns in dataset: {missing_columns}")
+        st.stop()
 
-df["EngagementScore"] = df["TotalVisits"] * df["Page Views Per Visit"]
-df["TimePerVisit"] = df["Total Time Spent on Website"] / (df["TotalVisits"] + 1)
+    data = data[required_columns].dropna().copy()
+
+    data["EngagementScore"] = (
+        data["TotalVisits"] * data["Page Views Per Visit"]
+    )
+
+    data["TimePerVisit"] = (
+        data["Total Time Spent on Website"] / (data["TotalVisits"] + 1)
+    )
+
+    return data
+
+
+df = load_data()
 
 # -------------------------------
 # LOGIC FUNCTIONS
@@ -267,7 +301,9 @@ with col1:
 with col2:
     engagement_score = total_visits * page_views
     time_per_visit = time_spent / (total_visits + 1)
+
     lead_segment = assign_segment(engagement_score, time_per_visit)
+
     contact_status = get_contact_status(
         selected["Do Not Email"],
         selected["Do Not Call"]
@@ -410,9 +446,9 @@ if st.button("🚀 Evaluate Lead", use_container_width=True):
 st.markdown("---")
 st.subheader("Monitoring Dashboard")
 
-if os.path.exists("logs.json") and os.path.getsize("logs.json") > 0:
+if LOGS_PATH.exists() and LOGS_PATH.stat().st_size > 0:
 
-    logs = pd.read_json("logs.json", lines=True)
+    logs = pd.read_json(LOGS_PATH, lines=True)
 
     m1, m2 = st.columns(2)
 

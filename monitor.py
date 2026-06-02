@@ -2,8 +2,10 @@ import json
 import os
 from datetime import datetime
 
-LOG_FILE = "logs.json"
-TRAIN_STATS_FILE = "train_stats.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOG_FILE = os.path.join(BASE_DIR, "logs.json")
+TRAIN_STATS_FILE = os.path.join(BASE_DIR, "artifacts", "metrics", "train_stats.json")
 
 
 # ----------------------------------
