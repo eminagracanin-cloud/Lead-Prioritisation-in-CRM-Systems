@@ -294,7 +294,7 @@ with col1:
 
     page_views = st.number_input(
         "Page Views Per Visit",
-        value=float(selected["Page Views Per Visit"]),
+        value=int(selected["Page Views Per Visit"]),
         step=1,
         format="%d"
     )
