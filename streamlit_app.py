@@ -295,7 +295,8 @@ with col1:
     page_views = st.number_input(
         "Page Views Per Visit",
         value=float(selected["Page Views Per Visit"]),
-        format="%.2f"
+        step=1,
+        format="%d"
     )
 
     st.markdown('</div>', unsafe_allow_html=True)
