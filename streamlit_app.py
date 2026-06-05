@@ -280,14 +280,16 @@ with col1:
 
     total_visits = st.number_input(
         "Total Visits",
-        value=float(selected["TotalVisits"]),
-        format="%.0f"
+        value=int(selected["TotalVisits"]),
+        step=1,
+        format="%d"
     )
 
     time_spent = st.number_input(
         "Total Time Spent on Website",
-        value=float(selected["Total Time Spent on Website"]),
-        format="%.0f"
+        value=int(selected["Total Time Spent on Website"]),
+        step=1,
+        format="%d"
     )
 
     page_views = st.number_input(
